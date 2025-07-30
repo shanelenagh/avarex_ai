@@ -1,0 +1,16 @@
+# Run with `flutter pub run ffigen --config ffigen.yaml`.
+name: NativeAddBindings
+description: |
+  Bindings for `src/native_add_library.h`.
+
+  Regenerate bindings with `flutter pub run ffigen --config ffigen.yaml`.
+output: 'lib/native/llama_bindings.dart'
+headers:
+  entry-points:
+    - 'src/llama_api.h'
+  include-directives:
+    - 'src/llama_api.h'
+comments:
+  style: any
+  length: full
+ffi-native:

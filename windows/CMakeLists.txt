@@ -106,3 +106,45 @@ install(DIRECTORY "${PROJECT_BUILD_DIR}/${FLUTTER_ASSET_DIR_NAME}"
 install(FILES "${AOT_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_DATA_DIR}"
   CONFIGURATIONS Profile;Release
   COMPONENT Runtime)
+
+# ##################### 7/30/25 Native code instructions
+# set(PROJECT_NAME, "avarex_ai")
+# project(${PROJECT_NAME} LANGUAGES CXX)
+
+# set(API_DIR ${CMAKE_CURRENT_SOURCE_DIR}/../src)
+# #set(LLAMA_CPP_DIR ${API_DIR}/llama_cpp)
+
+# set(BUILD_SHARED_LIBS ON)
+# set(CMAKE_INSTALL_LIBDIR lib CACHE PATH "library install dir" FORCE)
+# # Set the linker flags for shared libraries
+# set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -Wl,--build-id=none")
+
+# #set(LLAMA_NATIVE OFF CACHE BOOL "llama: disable -march=native flag" FORCE)
+# #set(LLAMA_VULKAN ON CACHE BOOL "llama: enable vulkan" FORCE)
+# #add_subdirectory(${LLAMA_CPP_DIR} ${CMAKE_CURRENT_BINARY_DIR}/shared)
+
+# target_include_directories(
+#   avarex_ai 
+#   PRIVATE 
+#   #${LLAMA_CPP_DIR}/common
+# )
+
+# target_sources(
+#   avarex_ai 
+#   PRIVATE 
+#   ${API_DIR}/llama_api.c
+# )
+
+# set_target_properties(avarex_ai PROPERTIES
+#   PUBLIC_HEADER ${API_DIR}/llama_api.h
+#   BUILD_WITH_INSTALL_RPATH TRUE
+#   INSTALL_RPATH "$ORIGIN"
+# )
+
+# target_compile_definitions(avarex_ai PUBLIC DART_SHARED_LIB)
+
+#set(avarex_ai_lib_bundled_libraries
+#  $<TARGET_FILE:avarex_ai_lib>
+#  PARENT_SCOPE
+#)
+# ##################### END 7/30/25 Native code instructions
