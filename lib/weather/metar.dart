@@ -1,6 +1,11 @@
 import 'dart:convert';
 import 'package:objectbox/objectbox.dart';
+import 'package:logging/logging.dart';
 import 'dart:io' as io;
+import '../objectbox.g.dart';
+
+final log = Logger("avrex_ai:test");
+
 
 @Entity()
 class Metar {
@@ -12,6 +17,9 @@ class Metar {
   DateTime? observationTime;
   double? latitude, longitude;
   double? tempCelcius;
+  @HnswIndex(dimensions: 2, distanceType: VectorDistanceType.geo)
+  @Property(type: PropertyType.floatVector)  
+  List<double?>? location;
   double? dewpointCelcius;
   int? windDirection;
   int? windSpeedKt;
@@ -50,6 +58,8 @@ class Metar {
   int? verticalVisibilityFeet;
   String? metarType;
   int? elevationInMeters;
+
+  Metar();
 
   Metar.fromDict(Map<String, dynamic> d):
     raw = d["raw_text"],
@@ -95,7 +105,10 @@ class Metar {
     snowInches = double.tryParse(d["snow_in"]),
     verticalVisibilityFeet = int.tryParse(d["vert_vis_ft"]),
     metarType = d["metar_type"],
-    elevationInMeters = int.tryParse(d["elevation_m"]);
+    elevationInMeters = int.tryParse(d["elevation_m"]) 
+    {
+      location = [latitude, longitude];
+    }
 }
 
 void main(List<String> args) async {
@@ -103,15 +116,31 @@ void main(List<String> args) async {
     io.stderr.writeln("Pass CSV file as single argument to program");
     io.exit(1);
   }
+  Logger.root.level = Level.ALL; // defaults to Level.INFO
+  Logger.root.onRecord.listen((record) {
+    print('${record.level.name}: ${record.time}: ${record.message}');
+  });  
+  log.info("Parse started");
   List<Map<String, dynamic>> metarRows = await parseMetarToDict(io.File(args[0]));
+  log.info("Dict parse done, now mapping to Metars");
+  List<Metar> metars = metarRows.map((d) => Metar.fromDict(d)).toList();
+  log.info("METAR mapping done, now going to print them out");
   //print(jsonEncode(metarRows));
-  for (Map<String, dynamic> row in metarRows) {
-    final m = Metar.fromDict(row);
-    print("Station ${m.stationId} at time ${m.observationTime} has raw metar: ${m.raw} and auto ${m.auto} and type ${m.metarType}");
+  for (Metar m in metars) {
+    print("Station ${m.stationId} at ${m.observationTime}: wx=${m.wxString}, auto=${m.auto}, type=${m.metarType}, skyCover=${m.skyCover}");
   }
+  log.info("Parse test finished");
+
+  final ObjectBox objectbox = await ObjectBox.create();
+  objectbox.metarBox.putMany(metars);
+
+
+
+
 }
 
 Future<List<Map<String, dynamic>>> parseMetarToDict(io.File metarFile) async {
+  log.info("Starting METAR processing");
   final metarLineStream = metarFile.openRead()
     .transform(utf8.decoder)
     .transform(LineSplitter());
@@ -125,12 +154,11 @@ Future<List<Map<String, dynamic>>> parseMetarToDict(io.File metarFile) async {
         startCsv = true;
         final List<String> rawHeaders = line.split(",");
         headers = [];
+        // Metars have non-unique column names for multiple elements (e.g., sky cover at different altitudes), so make col names unique
         for (String header in rawHeaders) {
           if (headers.contains(header)) {
             int i = 2;
-            while (headers.contains(header+i.toString())) {
-              i++;
-            }
+            for ( ; headers.contains(header+i.toString()); i++); // increment until header name is unique
             headers.add(header+i.toString());
           } else {
             headers.add(header);
@@ -146,5 +174,30 @@ Future<List<Map<String, dynamic>>> parseMetarToDict(io.File metarFile) async {
       rows.add(lineMap);
     }
   }
+  log.info("Parsed METAR into dict");
   return rows;
+}
+
+class ObjectBox {
+  /// The Store of this app.
+  late final Store _store;
+  late final Box<Metar> metarBox;
+  static ObjectBox? _instance;
+  
+  ObjectBox._create(this._store) {
+    // Add any additional setup code, e.g. build queries.
+    metarBox = Box<Metar>(_store);
+  }
+
+  /// Create an instance of ObjectBox to use throughout the app.
+  static Future<ObjectBox> create() async {
+    if (_instance != null) {
+      return _instance!;
+    } else {
+      // Future<Store> openStore() {...} is defined in the generated objectbox.g.dart
+      final store = await openStore(directory: "obx-example");
+      _instance = ObjectBox._create(store);
+      return _instance!;
+    }
+  }
 }

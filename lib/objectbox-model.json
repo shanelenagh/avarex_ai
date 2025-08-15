@@ -1,0 +1,252 @@
+{
+  "_note1": "KEEP THIS FILE! Check it into a version control system (VCS) like git.",
+  "_note2": "ObjectBox manages crucial IDs for your object model. See docs for details.",
+  "_note3": "If you have VCS merge conflicts, you must resolve them according to ObjectBox docs.",
+  "entities": [
+    {
+      "id": "1:8177456225739164128",
+      "lastPropertyId": "45:1675632124511229468",
+      "name": "Metar",
+      "properties": [
+        {
+          "id": "1:7305883371748001709",
+          "name": "id",
+          "type": 6,
+          "flags": 1
+        },
+        {
+          "id": "2:8984040929092151888",
+          "name": "raw",
+          "type": 9
+        },
+        {
+          "id": "3:5761446689859946500",
+          "name": "stationId",
+          "type": 9
+        },
+        {
+          "id": "4:8530852919892651769",
+          "name": "observationTime",
+          "type": 10
+        },
+        {
+          "id": "5:2882411042403684242",
+          "name": "latitude",
+          "type": 8
+        },
+        {
+          "id": "6:3572569979433624685",
+          "name": "longitude",
+          "type": 8
+        },
+        {
+          "id": "7:6773767688999235773",
+          "name": "tempCelcius",
+          "type": 8
+        },
+        {
+          "id": "8:756172577105611198",
+          "name": "dewpointCelcius",
+          "type": 8
+        },
+        {
+          "id": "9:1307618678633574952",
+          "name": "windDirection",
+          "type": 6
+        },
+        {
+          "id": "10:5806478486106691725",
+          "name": "windSpeedKt",
+          "type": 6
+        },
+        {
+          "id": "11:8555175500733471287",
+          "name": "windGustKt",
+          "type": 6
+        },
+        {
+          "id": "12:2051063052745219487",
+          "name": "visibilityStatMi",
+          "type": 8
+        },
+        {
+          "id": "13:6131099538080851880",
+          "name": "altimeterHg",
+          "type": 8
+        },
+        {
+          "id": "14:2448302057042225427",
+          "name": "seaLevelPressureMb",
+          "type": 8
+        },
+        {
+          "id": "15:301085102155271924",
+          "name": "corrected",
+          "type": 1
+        },
+        {
+          "id": "16:1557201025874169369",
+          "name": "auto",
+          "type": 1
+        },
+        {
+          "id": "17:2055533235989467238",
+          "name": "autoStation",
+          "type": 1
+        },
+        {
+          "id": "18:739521798832036305",
+          "name": "maintenanceIndicatorOn",
+          "type": 1
+        },
+        {
+          "id": "19:4567345943904104546",
+          "name": "noSignal",
+          "type": 1
+        },
+        {
+          "id": "20:8558454432493891420",
+          "name": "lightningSensorOff",
+          "type": 1
+        },
+        {
+          "id": "21:642569242025329235",
+          "name": "freezingRainSensorOff",
+          "type": 1
+        },
+        {
+          "id": "22:437434581549898305",
+          "name": "presentWeatherSensorOff",
+          "type": 1
+        },
+        {
+          "id": "23:7001150078112349239",
+          "name": "wxString",
+          "type": 9
+        },
+        {
+          "id": "24:6725309907234502559",
+          "name": "skyCover",
+          "type": 9
+        },
+        {
+          "id": "25:4033011736427309753",
+          "name": "cloudBaseFeetAgl",
+          "type": 6
+        },
+        {
+          "id": "26:3145778485903999226",
+          "name": "skyCover2",
+          "type": 9
+        },
+        {
+          "id": "27:1338187189613421026",
+          "name": "cloudBaseFeetAgl2",
+          "type": 6
+        },
+        {
+          "id": "28:6595536923105537697",
+          "name": "skyCover3",
+          "type": 9
+        },
+        {
+          "id": "29:6067969049266246646",
+          "name": "cloudBaseFeetAgl3",
+          "type": 6
+        },
+        {
+          "id": "30:377324423920056900",
+          "name": "skyCover4",
+          "type": 9
+        },
+        {
+          "id": "31:9108775010950393889",
+          "name": "cloudBaseFeetAgl4",
+          "type": 6
+        },
+        {
+          "id": "32:7512846849272789775",
+          "name": "flightCategory",
+          "type": 9
+        },
+        {
+          "id": "33:472947439052131193",
+          "name": "threeHourPressureTendencyMb",
+          "type": 8
+        },
+        {
+          "id": "34:3920837317780657453",
+          "name": "maxTempCelcius",
+          "type": 8
+        },
+        {
+          "id": "35:3627322254921463852",
+          "name": "minTempCelcius",
+          "type": 8
+        },
+        {
+          "id": "36:1283946704392006727",
+          "name": "maxTemp24HourCelcius",
+          "type": 8
+        },
+        {
+          "id": "37:8774036631666135682",
+          "name": "minTemp24HourCelcius",
+          "type": 8
+        },
+        {
+          "id": "38:3205991565352133995",
+          "name": "precipitationInches",
+          "type": 8
+        },
+        {
+          "id": "39:2652395331870688248",
+          "name": "precipitation3HourInches",
+          "type": 8
+        },
+        {
+          "id": "40:4255370092568873515",
+          "name": "precipitation6HourInches",
+          "type": 8
+        },
+        {
+          "id": "41:7950759977994221598",
+          "name": "precipitation24HourInches",
+          "type": 8
+        },
+        {
+          "id": "42:5285532634815021793",
+          "name": "snowInches",
+          "type": 8
+        },
+        {
+          "id": "43:8194093835355832681",
+          "name": "verticalVisibilityFeet",
+          "type": 6
+        },
+        {
+          "id": "44:5519020665758624214",
+          "name": "metarType",
+          "type": 9
+        },
+        {
+          "id": "45:1675632124511229468",
+          "name": "elevationInMeters",
+          "type": 6
+        }
+      ],
+      "relations": []
+    }
+  ],
+  "lastEntityId": "1:8177456225739164128",
+  "lastIndexId": "0:0",
+  "lastRelationId": "0:0",
+  "lastSequenceId": "0:0",
+  "modelVersion": 5,
+  "modelVersionParserMinimum": 5,
+  "retiredEntityUids": [],
+  "retiredIndexUids": [],
+  "retiredPropertyUids": [],
+  "retiredRelationUids": [],
+  "version": 1
+}
