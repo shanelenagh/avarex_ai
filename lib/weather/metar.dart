@@ -107,8 +107,7 @@ class Metar {
     metarType = d["metar_type"],
     elevationInMeters = int.tryParse(d["elevation_m"]) 
     {
-      id = (observationTime?.millisecondsSinceEpoch??0) * 10000 
-        + (latitude??0 * 1000).round()  + (longitude??0 * 100).round() + (stationId?.hashCode ?? 0); 
+      id = raw?.hashCode ?? 0; // Use hash code of raw text as ID
       location = [latitude!, longitude!];
     }
 }
