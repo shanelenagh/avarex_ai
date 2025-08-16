@@ -9,7 +9,7 @@ final log = Logger("avrex_ai:test");
 
 @Entity()
 class Metar {
-  @Id()
+  @Id(assignable: true)
   int id = 0;
 
   String? raw;
@@ -19,7 +19,7 @@ class Metar {
   double? tempCelcius;
   @HnswIndex(dimensions: 2, distanceType: VectorDistanceType.geo)
   @Property(type: PropertyType.floatVector)  
-  List<double?>? location;
+  late List<double> location;
   double? dewpointCelcius;
   int? windDirection;
   int? windSpeedKt;
@@ -65,8 +65,8 @@ class Metar {
     raw = d["raw_text"],
     stationId = d["station_id"],
     observationTime = DateTime.parse(d["observation_time"]),
-    latitude = double.tryParse(d["latitude"]),
-    longitude = double.tryParse(d["longitude"]),
+    latitude = double.tryParse(d["latitude"]) ?? 0,
+    longitude = double.tryParse(d["longitude"]) ?? 0,
     tempCelcius = double.tryParse(d["temp_c"]),
     dewpointCelcius = double.tryParse(d["dewpoint_c"]),
     windDirection = int.tryParse(d["wind_dir_degrees"]),
@@ -107,7 +107,9 @@ class Metar {
     metarType = d["metar_type"],
     elevationInMeters = int.tryParse(d["elevation_m"]) 
     {
-      location = [latitude, longitude];
+      id = (observationTime?.millisecondsSinceEpoch??0) * 10000 
+        + (latitude??0 * 1000).round()  + (longitude??0 * 100).round() + (stationId?.hashCode ?? 0); 
+      location = [latitude!, longitude!];
     }
 }
 
@@ -118,7 +120,7 @@ void main(List<String> args) async {
   }
   Logger.root.level = Level.ALL; // defaults to Level.INFO
   Logger.root.onRecord.listen((record) {
-    print('${record.level.name}: ${record.time}: ${record.message}');
+    print('${record.time} ${record.level.name} - ${record.message}');
   });  
   log.info("Parse started");
   List<Map<String, dynamic>> metarRows = await parseMetarToDict(io.File(args[0]));
@@ -132,7 +134,11 @@ void main(List<String> args) async {
   log.info("Parse test finished");
 
   final ObjectBox objectbox = await ObjectBox.create();
+  log.info("About to put metars in DB");
   objectbox.metarBox.putMany(metars);
+  log.info("Finished putting metars in DB");
+
+  log.info("Got ${objectbox.metarBox.count()} METARs in database");
 
 
 

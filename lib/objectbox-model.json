@@ -5,14 +5,14 @@
   "entities": [
     {
       "id": "1:8177456225739164128",
-      "lastPropertyId": "45:1675632124511229468",
+      "lastPropertyId": "46:5542633904765978545",
       "name": "Metar",
       "properties": [
         {
           "id": "1:7305883371748001709",
           "name": "id",
           "type": 6,
-          "flags": 1
+          "flags": 129
         },
         {
           "id": "2:8984040929092151888",
@@ -233,13 +233,20 @@
           "id": "45:1675632124511229468",
           "name": "elevationInMeters",
           "type": 6
+        },
+        {
+          "id": "46:5542633904765978545",
+          "name": "location",
+          "type": 28,
+          "flags": 8,
+          "indexId": "1:247343313131174286"
         }
       ],
       "relations": []
     }
   ],
   "lastEntityId": "1:8177456225739164128",
-  "lastIndexId": "0:0",
+  "lastIndexId": "1:247343313131174286",
   "lastRelationId": "0:0",
   "lastSequenceId": "0:0",
   "modelVersion": 5,

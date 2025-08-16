@@ -21,14 +21,14 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 8177456225739164128),
     name: 'Metar',
-    lastPropertyId: const obx_int.IdUid(45, 1675632124511229468),
+    lastPropertyId: const obx_int.IdUid(46, 5542633904765978545),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
         id: const obx_int.IdUid(1, 7305883371748001709),
         name: 'id',
         type: 6,
-        flags: 1,
+        flags: 129,
       ),
       obx_int.ModelProperty(
         id: const obx_int.IdUid(2, 8984040929092151888),
@@ -294,6 +294,14 @@ final _entities = <obx_int.ModelEntity>[
         type: 6,
         flags: 0,
       ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(46, 5542633904765978545),
+        name: 'location',
+        type: 28,
+        flags: 8,
+        indexId: const obx_int.IdUid(1, 247343313131174286),
+        hnswParams: obx_int.ModelHnswParams(dimensions: 2, distanceType: 6),
+      ),
     ],
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
@@ -338,7 +346,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
   final model = obx_int.ModelInfo(
     entities: _entities,
     lastEntityId: const obx_int.IdUid(1, 8177456225739164128),
-    lastIndexId: const obx_int.IdUid(0, 0),
+    lastIndexId: const obx_int.IdUid(1, 247343313131174286),
     lastRelationId: const obx_int.IdUid(0, 0),
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
@@ -387,7 +395,8 @@ obx_int.ModelDefinition getObjectBoxModel() {
         final metarTypeOffset = object.metarType == null
             ? null
             : fbb.writeString(object.metarType!);
-        fbb.startTable(46);
+        final locationOffset = fbb.writeListFloat32(object.location);
+        fbb.startTable(47);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, rawOffset);
         fbb.addOffset(2, stationIdOffset);
@@ -433,6 +442,7 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addInt64(42, object.verticalVisibilityFeet);
         fbb.addOffset(43, metarTypeOffset);
         fbb.addInt64(44, object.elevationInMeters);
+        fbb.addOffset(45, locationOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -633,7 +643,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
             buffer,
             rootOffset,
             92,
-          );
+          )
+          ..location = const fb.ListReader<double>(
+            fb.Float32Reader(),
+            lazy: false,
+          ).vTableGet(buffer, rootOffset, 94, []);
 
         return object;
       },
@@ -864,5 +878,10 @@ class Metar_ {
   /// See [Metar.elevationInMeters].
   static final elevationInMeters = obx.QueryIntegerProperty<Metar>(
     _entities[0].properties[44],
+  );
+
+  /// See [Metar.location].
+  static final location = obx.QueryHnswProperty<Metar>(
+    _entities[0].properties[45],
   );
 }
