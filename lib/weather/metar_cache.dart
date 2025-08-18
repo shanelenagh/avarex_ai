@@ -155,7 +155,7 @@ class Metar {
     metarType = d["metar_type"],
     elevationInMeters = int.tryParse(d["elevation_m"]) 
     {
-      id = raw?.hashCode ?? 0; // Use hash code of raw text as ID
+      id = ((stationId ?? "") + (metarType ?? "")).hashCode; //raw?.hashCode ?? 0; // Use hash code of raw text as ID
       location = [latitude!, longitude!];
     }
 }
@@ -185,7 +185,6 @@ Future<List<Map<String, dynamic>>> parseMetarToDict(Stream<List<int>> metarStrea
         }
       }
     } else {
-      //print("on line ${lineCount++}: $line");
       splitLine = csvConverter.convert(line)[0]; //.split(",");
       final lineMap = Map<String, dynamic>();
       for (int i = 0; i < splitLine.length; i++) {
@@ -221,7 +220,6 @@ class MetarObjectBox {
   }
 }
 
-
 void main(List<String> args) async {
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
@@ -233,7 +231,7 @@ void main(List<String> args) async {
   log.info("Starting METAR cache update");
   await metarCache.updateMetarCache();
   log.info("Finished METAR cache update");
- 
+  log.info("Now there are ${metarCache._ob?.metarBox.count()} metars in DB");
 
   // final bStream = (await MetarCache._getMetarStream()).asBroadcastStream(); //response.stream.transform(GZipCodec().decoder).asBroadcastStream();
   // final sink = File("metars.csv").openWrite();
