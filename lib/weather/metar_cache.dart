@@ -6,8 +6,11 @@ import 'dart:convert';
 import 'package:logging/logging.dart';
 // ignore: unnecessary_import - Used by Objectbox code generation
 import 'package:objectbox/objectbox.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 import '../objectbox.g.dart';
+
+part 'metar_cache.g.dart';
 
 final log = Logger("avrex_ai:test");
 
@@ -53,8 +56,15 @@ class MetarCache {
   Future<void> updateMetarCache() async {
     _ob!.metarBox.putMany(await getMetars());    
   }
+
+  List<Metar> getMetarsOnRoute(List<String> stationIds) {
+    return _ob!.metarBox.query(
+      Metar_.stationId.oneOf(stationIds),
+    ).build().find();
+  }  
 }
 
+@JsonSerializable() 
 @Entity()
 class Metar {
   @Id(assignable: true)
@@ -158,6 +168,8 @@ class Metar {
       id = ((stationId ?? "") + (metarType ?? "")).hashCode; //raw?.hashCode ?? 0; // Use hash code of raw text as ID
       location = [latitude!, longitude!];
     }
+
+    Map<String, dynamic> toJson() => _$MetarToJson(this);
 }
 
 Future<List<Map<String, dynamic>>> parseMetarToDict(Stream<List<int>> metarStream) async {
@@ -248,4 +260,9 @@ void main(List<String> args) async {
   // log.info("Parsed METAR data into dictionary format of length ${metarDict.length}");
   // log.info("First one is ${metarDict[0]['raw_text']}");
   // log.info("Last one is ${metarDict[metarDict.length-1]['raw_text']}");  
+
+  log.info("Getting METARs for route");
+  final metars = metarCache.getMetarsOnRoute(["KLNK"]);
+  log.info("Found ${metars.length} metars for route");
+  log.info("JSON for first ${metars[0].toJson()}");
 }
