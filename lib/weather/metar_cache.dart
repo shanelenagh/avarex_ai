@@ -14,23 +14,26 @@ final log = Logger("avrex_ai:test");
 class MetarCache {
 
   static const String _metarUrl = 'https://aviationweather.gov/data/cache/metars.cache.csv.gz';
-  static late final MetarCache _instance;
-  late final MetarObjectBox ob;
+  static final MetarCache _instance = MetarCache._create();
+  
+  MetarObjectBox? _ob;
+
+  MetarCache._create();
 
   static Future<MetarCache> create() async {
-    if (_instance != null) {
+    if (_instance._ob != null) {
       return _instance;
     }
-    _instance = MetarCache();
-    _instance.ob = await MetarObjectBox.create();
+    _instance._ob = await MetarObjectBox.create();
     return _instance;
   }
 
   static Future<List<Metar>> getMetars() async {
+    log.info("Downloading METAR data from $_metarUrl");
     final metarStream = await _getMetarStream();
+    log.info("Parsing METAR data");
     final metarDict = await parseMetarToDict(metarStream);
     log.info("Parsed METAR data into dictionary format of length ${metarDict.length}");
-    
     final metars = metarDict.map((d) => Metar.fromDict(d)).toList();
     log.info("Converted METAR data to Metar objects of length ${metars.length}");
     
@@ -47,8 +50,8 @@ class MetarCache {
     return response.stream.transform(GZipCodec().decoder);
   }
 
-  void updateMetarCache() async {
-    ob.metarBox.putMany(await getMetars());    
+  Future<void> updateMetarCache() async {
+    _ob!.metarBox.putMany(await getMetars());    
   }
 }
 
@@ -158,7 +161,6 @@ class Metar {
 }
 
 Future<List<Map<String, dynamic>>> parseMetarToDict(Stream<List<int>> metarStream) async {
-  log.info("Starting METAR processing");
   final metarLineStream = metarStream.transform(utf8.decoder).transform(LineSplitter());
   bool startCsv = false;
   List<Map<String, dynamic>> rows = [];
@@ -192,7 +194,6 @@ Future<List<Map<String, dynamic>>> parseMetarToDict(Stream<List<int>> metarStrea
       rows.add(lineMap);
     }
   }
-  log.info("Parsed METAR into dict");
   return rows;
 }
 
@@ -213,7 +214,7 @@ class MetarObjectBox {
       return _instance!;
     } else {
       // Future<Store> openStore() {...} is defined in the generated objectbox.g.dart
-      final store = await openStore(directory: "obx-example");
+      final store = openStore(directory: "obx-example");
       _instance = MetarObjectBox._create(store);
       return _instance!;
     }
@@ -225,25 +226,28 @@ void main(List<String> args) async {
   Logger.root.onRecord.listen((record) {
     // ignore: avoid_print
     print('${record.time} ${record.level.name} - ${record.message}');
-  });    
+  });  
 
-  final bStream = (await MetarCache._getMetarStream()).asBroadcastStream(); //response.stream.transform(GZipCodec().decoder).asBroadcastStream();
+  log.info("Creating metar cache instance");
+  final metarCache = await MetarCache.create(); 
+  log.info("Starting METAR cache update");
+  await metarCache.updateMetarCache();
+  log.info("Finished METAR cache update");
+ 
 
-  final sink = File("metars.csv").openWrite();
-  bStream.listen((List<int> data) {
-    sink.add(data);
-  }, onDone: () {
-    log.info("Finished writing METAR data to file");
-    sink.close();
-  }, onError: (error) {
-    log.severe("Error writing METAR data to file: $error");
-    sink.close();
-  });
-
-  final metarDict = await parseMetarToDict(bStream); //response.stream.transform(GZipCodec().decoder).transform(utf8.decoder));
-  log.info("Parsed METAR data into dictionary format of length ${metarDict.length}");
-  log.info("First one is ${metarDict[0]['raw_text']}");
-  log.info("Last one is ${metarDict[metarDict.length-1]['raw_text']}");
-  //}
-  
+  // final bStream = (await MetarCache._getMetarStream()).asBroadcastStream(); //response.stream.transform(GZipCodec().decoder).asBroadcastStream();
+  // final sink = File("metars.csv").openWrite();
+  // bStream.listen((List<int> data) {
+  //   sink.add(data);
+  // }, onDone: () {
+  //   log.info("Finished writing METAR data to file");
+  //   sink.close();
+  // }, onError: (error) {
+  //   log.severe("Error writing METAR data to file: $error");
+  //   sink.close();
+  // });
+  // final metarDict = await parseMetarToDict(bStream); //response.stream.transform(GZipCodec().decoder).transform(utf8.decoder));
+  // log.info("Parsed METAR data into dictionary format of length ${metarDict.length}");
+  // log.info("First one is ${metarDict[0]['raw_text']}");
+  // log.info("Last one is ${metarDict[metarDict.length-1]['raw_text']}");  
 }
