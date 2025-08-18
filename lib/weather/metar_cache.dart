@@ -9,7 +9,6 @@ import 'package:objectbox/objectbox.dart';
 import 'package:json_annotation/json_annotation.dart';
 
 import '../objectbox.g.dart';
-
 part 'metar_cache.g.dart';
 
 final log = Logger("avrex_ai:test");
@@ -243,7 +242,8 @@ void main(List<String> args) async {
   log.info("Starting METAR cache update");
   await metarCache.updateMetarCache();
   log.info("Finished METAR cache update");
-  log.info("Now there are ${metarCache._ob?.metarBox.count()} metars in DB");
+  log.info("Now there are ${metarCache._ob?.metarBox.count()} metars in DB"); 
+
 
   // final bStream = (await MetarCache._getMetarStream()).asBroadcastStream(); //response.stream.transform(GZipCodec().decoder).asBroadcastStream();
   // final sink = File("metars.csv").openWrite();
@@ -264,5 +264,7 @@ void main(List<String> args) async {
   log.info("Getting METARs for route");
   final metars = metarCache.getMetarsOnRoute(["KLNK"]);
   log.info("Found ${metars.length} metars for route");
-  log.info("JSON for first ${metars[0].toJson()}");
+  for (Metar m in metars) {
+    log.info("METAR for route: ${m.toJson()}");
+  }
 }
