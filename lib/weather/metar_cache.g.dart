@@ -20,9 +20,10 @@ Metar _$MetarFromJson(Map<String, dynamic> json) => Metar()
       .map((e) => (e as num).toDouble())
       .toList()
   ..dewpointCelcius = (json['Dewpoint in Celsius'] as num?)?.toDouble()
-  ..windDirection = (json['Wind Direction'] as num?)?.toInt()
-  ..windSpeedKt = (json['Wind Speed in Knots'] as num?)?.toInt()
-  ..windGustKt = (json['Wind Gust in Knots'] as num?)?.toInt()
+  ..windDirection = (json['windDirection'] as num?)?.toInt()
+  ..windSpeedKt = (json['windSpeedKt'] as num?)?.toInt()
+  ..windGustKt = (json['windGustKt'] as num?)?.toInt()
+  ..windDescription = json['Surface Wind Conditions'] as String?
   ..visibilityStatMi = (json['Visibility in Statute Miles'] as num?)?.toDouble()
   ..altimeterHg = (json['Altimeter Setting in Inches Mercury'] as num?)
       ?.toDouble()
@@ -47,7 +48,8 @@ Metar _$MetarFromJson(Map<String, dynamic> json) => Metar()
   ..cloudBaseFeetAgl3 = (json['cloudBaseFeetAgl3'] as num?)?.toInt()
   ..skyCover4 = json['skyCover4'] as String?
   ..cloudBaseFeetAgl4 = (json['cloudBaseFeetAgl4'] as num?)?.toInt()
-  ..flightCategory = json['Flight Category'] as String?
+  ..flightCategory = json['flightCategory'] as String?
+  ..flightCategoryDescription = json['Flight Category'] as String?
   ..threeHourPressureTendencyMb =
       (json['Three hour pressure tendency in millibars'] as num?)?.toDouble()
   ..maxTempCelcius = (json['Max temperature Celcius'] as num?)?.toDouble()
@@ -78,9 +80,8 @@ Map<String, dynamic> _$MetarToJson(Metar instance) => <String, dynamic>{
   'longitude': instance.longitude,
   if (instance.tempCelcius case final value?) 'Temperature in Celsius': value,
   if (instance.dewpointCelcius case final value?) 'Dewpoint in Celsius': value,
-  if (instance.windDirection case final value?) 'Wind Direction': value,
-  if (instance.windSpeedKt case final value?) 'Wind Speed in Knots': value,
-  if (instance.windGustKt case final value?) 'Wind Gust in Knots': value,
+  if (instance.windDescription case final value?)
+    'Surface Wind Conditions': value,
   if (instance.visibilityStatMi case final value?)
     'Visibility in Statute Miles': value,
   if (instance.altimeterHg case final value?)
@@ -100,7 +101,8 @@ Map<String, dynamic> _$MetarToJson(Metar instance) => <String, dynamic>{
   if (instance.weatherDescription case final value?)
     'Weather Description': value,
   if (instance.skyCoverDescription case final value?) 'Sky Cover': value,
-  if (instance.flightCategory case final value?) 'Flight Category': value,
+  if (instance.flightCategoryDescription case final value?)
+    'Flight Category': value,
   if (instance.threeHourPressureTendencyMb case final value?)
     'Three hour pressure tendency in millibars': value,
   if (instance.maxTempCelcius case final value?)

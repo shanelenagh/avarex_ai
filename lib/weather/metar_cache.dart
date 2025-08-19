@@ -91,12 +91,14 @@ class Metar {
   late List<double> location;
   @JsonKey(name: "Dewpoint in Celsius", includeIfNull: false)
   double? dewpointCelcius;
-  @JsonKey(name: "Wind Direction", includeIfNull: false)
+  @JsonKey(includeToJson: false)
   int? windDirection;
-  @JsonKey(name: "Wind Speed in Knots", includeIfNull: false)
+  @JsonKey(includeToJson: false)
   int? windSpeedKt;
-  @JsonKey(name: "Wind Gust in Knots", includeIfNull: false)
+  @JsonKey(includeToJson: false)
   int? windGustKt;
+  @JsonKey(name: "Surface Wind Conditions", includeIfNull: false)
+  String? windDescription;
   @JsonKey(name: "Visibility in Statute Miles", includeIfNull: false)
   double? visibilityStatMi;
   @JsonKey(name: "Altimeter Setting in Inches Mercury", includeIfNull: false)
@@ -141,8 +143,10 @@ class Metar {
   String? skyCover4;
   @JsonKey(includeToJson: false)
   int? cloudBaseFeetAgl4;
-  @JsonKey(name: "Flight Category", includeIfNull: false)
+  @JsonKey(includeToJson: false)
   String? flightCategory;
+  @JsonKey(name: "Flight Category", includeIfNull: false)
+  String? flightCategoryDescription;
   @JsonKey(name: "Three hour pressure tendency in millibars", includeIfNull: false)
   double? threeHourPressureTendencyMb;
   @JsonKey(name: "Max temperature Celcius", includeIfNull: false)
@@ -222,6 +226,22 @@ class Metar {
       location = [latitude!, longitude!];
       weatherDescription = _getWeatherDescription(wxString);
       skyCoverDescription = _getSkyCoverDescription();
+      flightCategoryDescription = flightCategoryDescriptor[flightCategory];
+      windDescription = _getWindDescription();
+    }
+
+    String? _getWindDescription() {
+      if (windSpeedKt == null) {
+        return null;
+      }
+      String windDescription = "$windSpeedKt knots";
+      if (windDirection != null) {
+        windDescription += " from $windDirection degrees";
+      }
+      if (windGustKt != null) {
+        windDescription += ", gusting to $windGustKt knots";
+      }
+      return windDescription;
     }
 
     String? _getSkyCoverDescription() {
@@ -325,6 +345,12 @@ class Metar {
       "TCU": "Towering cumulus clouds",
       "CB": "Cumulonimbus clouds",
       "VV": "Vertical visibility prevented"
+    };
+    static final flightCategoryDescriptor = {
+      "VFR": "Visual Flight Rules",
+      "IFR": "Instrument Flight Rules",
+      "LIFR": "Low Instrument Flight Rules",
+      "MVFR": "Marginal Visual Flight Rules"
     };
 
     Map<String, dynamic> toJson() => _$MetarToJson(this);

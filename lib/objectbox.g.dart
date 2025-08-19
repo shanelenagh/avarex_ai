@@ -21,7 +21,7 @@ final _entities = <obx_int.ModelEntity>[
   obx_int.ModelEntity(
     id: const obx_int.IdUid(1, 8177456225739164128),
     name: 'Metar',
-    lastPropertyId: const obx_int.IdUid(46, 5542633904765978545),
+    lastPropertyId: const obx_int.IdUid(53, 3931228926072393294),
     flags: 0,
     properties: <obx_int.ModelProperty>[
       obx_int.ModelProperty(
@@ -302,6 +302,30 @@ final _entities = <obx_int.ModelEntity>[
         indexId: const obx_int.IdUid(1, 247343313131174286),
         hnswParams: obx_int.ModelHnswParams(dimensions: 2, distanceType: 6),
       ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(47, 8824373290774813134),
+        name: 'weatherDescription',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(48, 401212906618396294),
+        name: 'skyCoverDescription',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(52, 4393024823810794209),
+        name: 'flightCategoryDescription',
+        type: 9,
+        flags: 0,
+      ),
+      obx_int.ModelProperty(
+        id: const obx_int.IdUid(53, 3931228926072393294),
+        name: 'windDescription',
+        type: 9,
+        flags: 0,
+      ),
     ],
     relations: <obx_int.ModelRelation>[],
     backlinks: <obx_int.ModelBacklink>[],
@@ -351,7 +375,11 @@ obx_int.ModelDefinition getObjectBoxModel() {
     lastSequenceId: const obx_int.IdUid(0, 0),
     retiredEntityUids: const [],
     retiredIndexUids: const [],
-    retiredPropertyUids: const [],
+    retiredPropertyUids: const [
+      2106711045640807569,
+      547637227829771593,
+      2235391680476188747,
+    ],
     retiredRelationUids: const [],
     modelVersion: 5,
     modelVersionParserMinimum: 5,
@@ -396,7 +424,20 @@ obx_int.ModelDefinition getObjectBoxModel() {
             ? null
             : fbb.writeString(object.metarType!);
         final locationOffset = fbb.writeListFloat32(object.location);
-        fbb.startTable(47);
+        final weatherDescriptionOffset = object.weatherDescription == null
+            ? null
+            : fbb.writeString(object.weatherDescription!);
+        final skyCoverDescriptionOffset = object.skyCoverDescription == null
+            ? null
+            : fbb.writeString(object.skyCoverDescription!);
+        final flightCategoryDescriptionOffset =
+            object.flightCategoryDescription == null
+            ? null
+            : fbb.writeString(object.flightCategoryDescription!);
+        final windDescriptionOffset = object.windDescription == null
+            ? null
+            : fbb.writeString(object.windDescription!);
+        fbb.startTable(54);
         fbb.addInt64(0, object.id);
         fbb.addOffset(1, rawOffset);
         fbb.addOffset(2, stationIdOffset);
@@ -443,6 +484,10 @@ obx_int.ModelDefinition getObjectBoxModel() {
         fbb.addOffset(43, metarTypeOffset);
         fbb.addInt64(44, object.elevationInMeters);
         fbb.addOffset(45, locationOffset);
+        fbb.addOffset(46, weatherDescriptionOffset);
+        fbb.addOffset(47, skyCoverDescriptionOffset);
+        fbb.addOffset(51, flightCategoryDescriptionOffset);
+        fbb.addOffset(52, windDescriptionOffset);
         fbb.finish(fbb.endTable());
         return object.id;
       },
@@ -647,7 +692,19 @@ obx_int.ModelDefinition getObjectBoxModel() {
           ..location = const fb.ListReader<double>(
             fb.Float32Reader(),
             lazy: false,
-          ).vTableGet(buffer, rootOffset, 94, []);
+          ).vTableGet(buffer, rootOffset, 94, [])
+          ..weatherDescription = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 96)
+          ..skyCoverDescription = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 98)
+          ..flightCategoryDescription = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 106)
+          ..windDescription = const fb.StringReader(
+            asciiOptimization: true,
+          ).vTableGetNullable(buffer, rootOffset, 108);
 
         return object;
       },
@@ -883,5 +940,25 @@ class Metar_ {
   /// See [Metar.location].
   static final location = obx.QueryHnswProperty<Metar>(
     _entities[0].properties[45],
+  );
+
+  /// See [Metar.weatherDescription].
+  static final weatherDescription = obx.QueryStringProperty<Metar>(
+    _entities[0].properties[46],
+  );
+
+  /// See [Metar.skyCoverDescription].
+  static final skyCoverDescription = obx.QueryStringProperty<Metar>(
+    _entities[0].properties[47],
+  );
+
+  /// See [Metar.flightCategoryDescription].
+  static final flightCategoryDescription = obx.QueryStringProperty<Metar>(
+    _entities[0].properties[48],
+  );
+
+  /// See [Metar.windDescription].
+  static final windDescription = obx.QueryStringProperty<Metar>(
+    _entities[0].properties[49],
   );
 }
