@@ -61,6 +61,12 @@ class MetarCache {
       Metar_.stationId.oneOf(stationIds),
     ).build().find();
   }  
+
+   List<ObjectWithScore<Metar>> getMetarsNearMe(List<double> latLong, int neighborCount) {
+    return _ob!.metarBox.query(Metar_.location.nearestNeighborsF32(latLong, neighborCount)).build().findWithScores();
+  } 
+
+
 }
 
 @JsonSerializable() 
@@ -164,7 +170,7 @@ class Metar {
     metarType = d["metar_type"],
     elevationInMeters = int.tryParse(d["elevation_m"]) 
     {
-      id = ((stationId ?? "") + (metarType ?? "")).hashCode; //raw?.hashCode ?? 0; // Use hash code of raw text as ID
+      id = "${stationId??''} ${latitude.toString()}, ${longitude.toString()}".hashCode;
       location = [latitude!, longitude!];
     }
 
@@ -244,27 +250,17 @@ void main(List<String> args) async {
   log.info("Finished METAR cache update");
   log.info("Now there are ${metarCache._ob?.metarBox.count()} metars in DB"); 
 
-
-  // final bStream = (await MetarCache._getMetarStream()).asBroadcastStream(); //response.stream.transform(GZipCodec().decoder).asBroadcastStream();
-  // final sink = File("metars.csv").openWrite();
-  // bStream.listen((List<int> data) {
-  //   sink.add(data);
-  // }, onDone: () {
-  //   log.info("Finished writing METAR data to file");
-  //   sink.close();
-  // }, onError: (error) {
-  //   log.severe("Error writing METAR data to file: $error");
-  //   sink.close();
-  // });
-  // final metarDict = await parseMetarToDict(bStream); //response.stream.transform(GZipCodec().decoder).transform(utf8.decoder));
-  // log.info("Parsed METAR data into dictionary format of length ${metarDict.length}");
-  // log.info("First one is ${metarDict[0]['raw_text']}");
-  // log.info("Last one is ${metarDict[metarDict.length-1]['raw_text']}");  
-
   log.info("Getting METARs for route");
-  final metars = metarCache.getMetarsOnRoute(["KLNK"]);
+  final metars = metarCache.getMetarsOnRoute(["KLNK", "KCTA", "KATL"]);
   log.info("Found ${metars.length} metars for route");
-  for (Metar m in metars) {
-    log.info("METAR for route: ${m.toJson()}");
+  for (int i = 0; i < metars.length; i++) {
+    log.info("METAR $i for route: ${metars[i].toJson()}");
   }
+  log.info("Now going to search for METAR near Bellvue, NE");
+  final nearMe = metarCache.getMetarsNearMe([41.18451703151091, -95.96258884989884], 3);
+  log.info("Found ${nearMe.length} metars near me");
+  for (ObjectWithScore<Metar> m in nearMe) {
+    log.info("METAR within ${m.score}km of me: ${m.object.toJson()}");
+  }
+  log.info("done");
 }
