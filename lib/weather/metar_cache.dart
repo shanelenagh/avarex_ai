@@ -75,51 +75,99 @@ class Metar {
   @Id(assignable: true)
   int id = 0;
 
+  @JsonKey(includeToJson: false)
   String? raw;
+  @JsonKey(name: "Station Identifier")
   String? stationId;
+  @JsonKey(name: "Observation Date/time")
   DateTime? observationTime;
-  double? latitude, longitude;
+  double? latitude;
+  double? longitude;
+  @JsonKey(name: "Temperature in Celsius", includeIfNull: false)
   double? tempCelcius;
   @HnswIndex(dimensions: 2, distanceType: VectorDistanceType.geo)
   @Property(type: PropertyType.floatVector)  
+  @JsonKey(includeToJson: false)
   late List<double> location;
+  @JsonKey(name: "Dewpoint in Celsius", includeIfNull: false)
   double? dewpointCelcius;
+  @JsonKey(name: "Wind Direction", includeIfNull: false)
   int? windDirection;
+  @JsonKey(name: "Wind Speed in Knots", includeIfNull: false)
   int? windSpeedKt;
+  @JsonKey(name: "Wind Gust in Knots", includeIfNull: false)
   int? windGustKt;
+  @JsonKey(name: "Visibility in Statute Miles", includeIfNull: false)
   double? visibilityStatMi;
+  @JsonKey(name: "Altimeter Setting in Inches Mercury", includeIfNull: false)
   double? altimeterHg;
+  @JsonKey(name: "Sea Level Pressure in Millibars", includeIfNull: false)
   double? seaLevelPressureMb;
+  @JsonKey(name: "Corrected Flag", includeIfNull: false)
   bool? corrected;
+  @JsonKey(includeToJson: false)
   bool? auto;
+  @JsonKey(includeToJson: false)
   bool? autoStation;
+  @JsonKey(name: "Maintenance Indicator", includeIfNull: false)
   bool? maintenanceIndicatorOn;
+  @JsonKey(name: "No Signal Indicator", includeIfNull: false)
   bool? noSignal;
+  @JsonKey(name: "Lightning Sensor Off", includeIfNull: false)
   bool? lightningSensorOff;
+  @JsonKey(name: "Freezing Rain Sensor Off", includeIfNull: false)
   bool? freezingRainSensorOff;
+  @JsonKey(name: "Present Weather Sensor Off", includeIfNull: false)
   bool? presentWeatherSensorOff;
+  @JsonKey(includeToJson: false)
   String? wxString;
+  @JsonKey(name: "Weather Description", includeIfNull: false)
+  String? weatherDescription;
+  @JsonKey(name: "Sky Cover", includeIfNull: false)
+  String? skyCoverDescription;
+  @JsonKey(includeToJson: false)
   String? skyCover;
+  @JsonKey(includeToJson: false)
   int? cloudBaseFeetAgl;
+  @JsonKey(includeToJson: false)
   String? skyCover2;
+  @JsonKey(includeToJson: false)
   int? cloudBaseFeetAgl2;
+  @JsonKey(includeToJson: false)
   String? skyCover3;
+  @JsonKey(includeToJson: false)
   int? cloudBaseFeetAgl3;
+  @JsonKey(includeToJson: false)
   String? skyCover4;
+  @JsonKey(includeToJson: false)
   int? cloudBaseFeetAgl4;
+  @JsonKey(name: "Flight Category", includeIfNull: false)
   String? flightCategory;
+  @JsonKey(name: "Three hour pressure tendency in millibars", includeIfNull: false)
   double? threeHourPressureTendencyMb;
+  @JsonKey(name: "Max temperature Celcius", includeIfNull: false)
   double? maxTempCelcius;
+  @JsonKey(name: "Min temperature Celcius", includeIfNull: false)
   double? minTempCelcius;
+  @JsonKey(name: "Max 24-hour temperature Celcius", includeIfNull: false)
   double? maxTemp24HourCelcius;
+  @JsonKey(name: "Min 24-hour temperature Celcius", includeIfNull: false)
   double? minTemp24HourCelcius;
+  @JsonKey(name: "Precipitation in inches", includeIfNull: false)
   double? precipitationInches;
+  @JsonKey(name: "3-hour precipitation in inches", includeIfNull: false)
   double? precipitation3HourInches;
+  @JsonKey(name: "6-hour precipitation in inches", includeIfNull: false)
   double? precipitation6HourInches;
+  @JsonKey(name: "24-hour precipitation in inches", includeIfNull: false)
   double? precipitation24HourInches;
+  @JsonKey(name: "Snow in inches", includeIfNull: false)
   double? snowInches;
+  @JsonKey(name: "Feet of vertical visibility", includeIfNull: false)
   int? verticalVisibilityFeet;
+  @JsonKey(includeToJson: false)
   String? metarType;
+  @JsonKey(name: "Observation elevation in meters", includeIfNull: false)
   int? elevationInMeters;
 
   Metar();
@@ -172,7 +220,112 @@ class Metar {
     {
       id = "${stationId??''} ${latitude.toString()}, ${longitude.toString()}".hashCode;
       location = [latitude!, longitude!];
+      weatherDescription = _getWeatherDescription(wxString);
+      skyCoverDescription = _getSkyCoverDescription();
     }
+
+    String? _getSkyCoverDescription() {
+      String? skyCoverDescription;
+      if (skyCover != null && skyCover!.isNotEmpty) {
+        skyCoverDescription = "${skyCoverDescriptor[skyCover]} at $cloudBaseFeetAgl feet";
+      }
+      if (skyCover2 != null && skyCover2!.isNotEmpty) {
+        skyCoverDescription = skyCoverDescription != null ? "$skyCoverDescription, " : "";
+        skyCoverDescription += "${skyCoverDescriptor[skyCover2]} at $cloudBaseFeetAgl2 feet";
+      }
+      if (skyCover3 != null && skyCover3!.isNotEmpty) {
+        skyCoverDescription = skyCoverDescription != null ? "$skyCoverDescription, " : "";
+        skyCoverDescription += "${skyCoverDescriptor[skyCover3]} at $cloudBaseFeetAgl3 feet";
+      }      
+      return skyCoverDescription;
+    }
+
+    static String? _getWeatherDescription(String? wxString) {
+      if (wxString == null || wxString.trim().isEmpty) {
+        return null;
+      }
+      String wxDescription = "";
+      while (wxString!.isNotEmpty) {
+        wxString = wxString.trim();
+        String newWeather = "";
+        if (wxString[0] == "+") {
+          newWeather = "Heavy ";
+          wxString = wxString.substring(1);
+        } else if (wxString[0] == "-") {
+          newWeather = "Light ";
+          wxString = wxString.substring(1);
+        }        
+        if (recencyDescriptor.containsKey(wxString.substring(0,2))) {
+          newWeather += "${recencyDescriptor[wxString.substring(0,2)]!} ";
+          wxString = wxString.substring(2);
+          if (phenomenonDescriptor.containsKey(wxString.substring(0,2))) {
+            newWeather += phenomenonDescriptor[wxString.substring(0,2)]!;
+            wxString = wxString.substring(2);
+          }           
+        } else if (phenomenonDescriptor.containsKey(wxString.substring(0,2))) {
+          newWeather += phenomenonDescriptor[wxString.substring(0,2)]!;
+          wxString = wxString.substring(2);
+        }      
+        if (newWeather.isEmpty) {
+          //throw Exception("Can't interpret rest of weather string: $wxString and segment ${wxString.substring(0,1)} with phenom bool ${phenomenonDescriptor.containsKey(wxString.substring(0,1))}");
+          break;
+        } else {
+          wxDescription = wxDescription.isEmpty ? newWeather : "$wxDescription, $newWeather";
+        }
+      }
+
+      return wxDescription;
+    }
+
+    static final recencyDescriptor = { 
+      "VC": "Visible", 
+      "RE": "Residual" 
+    };
+    static final phenomenonDescriptor = {
+      "TS": "Thuderstorm",
+      "MI": "Shallow fog",
+      "PR": "Partial fog",
+      "BC": "Patches of fog",
+      "DR": "Low drifting fog",
+      "BL": "Blowing eye level fog",
+      "SH": "Showers",
+      "FZ": "Freezing",
+      "DZ": "Drizzle",
+      "RA": "Rain",
+      "SN": "Snow",
+      "SG": "Snow grains",
+      "GS": "Graupel/small hail",
+      "GR": "Hail",
+      "PL": "Ice pellets",
+      "IC": "Ice crystals",
+      "UP": "Unknown prcipitation",
+      "FG": "Fog",
+      "BR": "Mist",
+      "HZ": "Haze",
+      "VA": "Volcanic ash",
+      "DU": "Widespread dust",
+      "FU": "Smoke",
+      "SA": "Sand",
+      "PY": "Spray",
+      "SQ": "Squall",
+      "PO": "Dust or sand whirls",
+      "DS": "Dust storm",
+      "SS": "Sand storm",
+      "FC": "Funnel cloud"
+    };
+    static final skyCoverDescriptor = {
+      "CLR": "Clear",
+      "SKC": "No clouds, sky clear",
+      "NCD": "Nil clouds detected",
+      "NSD": "No significant clouds",
+      "FEW": "Few clouds",
+      "SCT": "Scattered clouds",
+      "BKN": "Broken clouds",
+      "OVC": "Overcast",
+      "TCU": "Towering cumulus clouds",
+      "CB": "Cumulonimbus clouds",
+      "VV": "Vertical visibility prevented"
+    };
 
     Map<String, dynamic> toJson() => _$MetarToJson(this);
 }
@@ -203,7 +356,7 @@ Future<List<Map<String, dynamic>>> parseMetarToDict(Stream<List<int>> metarStrea
       }
     } else {
       splitLine = csvConverter.convert(line)[0]; //.split(",");
-      final lineMap = Map<String, dynamic>();
+      final lineMap = <String, dynamic>{};
       for (int i = 0; i < splitLine.length; i++) {
         lineMap[headers[i]] = splitLine[i].toString();
       } 
@@ -251,7 +404,7 @@ void main(List<String> args) async {
   log.info("Now there are ${metarCache._ob?.metarBox.count()} metars in DB"); 
 
   log.info("Getting METARs for route");
-  final metars = metarCache.getMetarsOnRoute(["KLNK", "KCTA", "KATL"]);
+  final metars = metarCache.getMetarsOnRoute(["SUMU", "LFRJ", "NTTB", "CYXU"]);
   log.info("Found ${metars.length} metars for route");
   for (int i = 0; i < metars.length; i++) {
     log.info("METAR $i for route: ${metars[i].toJson()}");
